@@ -11,11 +11,11 @@ from reportlab.lib import colors
 
 # 1. Page Configuration
 st.set_page_config(page_title="Executive Real Estate Portfolio", layout="wide")
-st.title("🏡 Metro Investment & First-Time Buyer Portfolio")
-st.markdown("Evaluating multi-regional community metrics, capital goals, and expansion markets.")
+st.title("🏡 Advanced Metro Investment & First-Time Buyer Portfolio")
+st.markdown("Evaluating 11 premier markets using core financial, community safety, and infrastructure metrics.")
 
-# 2. Expanded 12-City Dataset (Prices, Communities, and Visual Anchors)
-# 2. Updated 11-City Dataset (Removed DC-MD-VA)
+# 2. Comprehensive 11-City Dataset (Prices, Growth, Taxes, Commutes, and Crime Indexes)
+# Crime Index scale: Lower numbers indicate significantly safer environments/lower crime rates.
 @st.cache_data
 def load_portfolio_data():
     return pd.DataFrame({
@@ -28,6 +28,9 @@ def load_portfolio_data():
         'School_Rating': [8, 7, 6, 8, 7, 6, 9, 7, 6, 7, 7],
         'Walkability': [78, 89, 72, 85, 62, 55, 68, 50, 82, 65, 70],
         'Growth_Trend': [4.8, 3.2, 6.4, 7.8, 5.9, 5.1, 8.2, 3.9, 4.1, 7.2, 5.6],
+        'Tax_Rate': [1.02, 0.79, 1.95, 0.85, 0.62, 2.10, 0.87, 1.15, 1.20, 1.22, 1.25], # Combined Effective Property Tax %
+        'Commute_Mins': [31, 38, 30, 35, 27, 26, 25, 24, 34, 28, 24], # Avg local commute duration
+        'Crime_Index': [52, 48, 64, 62, 44, 58, 32, 41, 76, 38, 45], # Scaled Index (Lower = Safer)
         'Community_Vibe': [
             'Tech Hub / Coastal', 'Urban Culture / Entertainment', 'Diverse / Industrial Growth', 'Historic Charm / Creative Hub',
             'Desert Urbanism / Expanding Suburbs', 'Historic Culture / Affordable Living', 'Research Triangle / High-Tech Innovation',
@@ -40,97 +43,114 @@ def load_portfolio_data():
 
 df = load_portfolio_data()
 
-# 3. Sidebar Configuration (Priorities & Goals)
-st.sidebar.header("🎯 Investment Strategy & Goals")
-st.sidebar.markdown("Define priorities to align with long-term capital goals.")
+# 3. Expanded Sidebar Strategy Matrix (Weights & Filters)
+st.sidebar.header("🎯 Buyer Preference Vector")
+st.sidebar.markdown("Rate priority importance weights (1 = Minimal, 5 = High Priority)")
 
-w_price = st.sidebar.slider("Affordability (Lower Entry Price)", 1, 5, 3)
+w_price = st.sidebar.slider("Affordability (Lower Price)", 1, 5, 3)
 w_schools = st.sidebar.slider("School System Quality", 1, 5, 3)
-w_walk = st.sidebar.slider("Walkability & Infrastructure", 1, 5, 3)
-w_growth = st.sidebar.slider("Target Capital Growth (YoY)", 1, 5, 4)
+w_walk = st.sidebar.slider("Walkability Index", 1, 5, 2)
+w_growth = st.sidebar.slider("Target Capital Growth", 1, 5, 4)
+w_tax = st.sidebar.slider("Low Tax Burden", 1, 5, 3)
+w_commute = st.sidebar.slider("Short Commute Focus", 1, 5, 2)
+w_crime = st.sidebar.slider("Neighborhood Safety Focus (Low Crime)", 1, 5, 4)
 
-# 4. Math Logic: Dynamic Match Scoring Matrix
-price_score = (df['Home_Price'].max() - df['Home_Price']) / (df['Home_Price'].max() - df['Home_Price'].min() + 1) * 100
-school_score = (df['School_Rating'] / 10) * 100
-walk_score = df['Walkability']
-growth_score = (df['Growth_Trend'] / df['Growth_Trend'].max()) * 100
+# 4. Advanced Alignment Math (Normalize Metrics 0-100)
+# Low Values are Preferred for Price, Taxes, Commute, and Crime
+score_price = ((df['Home_Price'].max() - df['Home_Price']) / (df['Home_Price'].max() - df['Home_Price'].min() + 1)) * 100
+score_schools = (df['School_Rating'] / 10) * 100
+score_walk = df['Walkability']
+score_growth = (df['Growth_Trend'] / df['Growth_Trend'].max()) * 100
+score_tax = ((df['Tax_Rate'].max() - df['Tax_Rate']) / (df['Tax_Rate'].max() - df['Tax_Rate'].min() + 0.1)) * 100
+score_commute = ((df['Commute_Mins'].max() - df['Commute_Mins']) / (df['Commute_Mins'].max() - df['Commute_Mins'].min() + 1)) * 100
+score_crime = ((df['Crime_Index'].max() - df['Crime_Index']) / (df['Crime_Index'].max() - df['Crime_Index'].min() + 1)) * 100
 
-total_weight = w_price + w_schools + w_walk + w_growth
-df['Match_Score'] = ((price_score * w_price) + (school_score * w_schools) + (walk_score * w_walk) + (growth_score * w_growth)) / total_weight
+total_weight = w_price + w_schools + w_walk + w_growth + w_tax + w_commute + w_crime
+df['Match_Score'] = (
+    (score_price * w_price) + (score_schools * w_schools) + (score_walk * w_walk) + 
+    (score_growth * w_growth) + (score_tax * w_tax) + (score_commute * w_commute) + (score_crime * w_crime)
+) / total_weight
 df['Match_Score'] = df['Match_Score'].round(1)
 
-# Sort by strongest match
+# Re-sort portfolio ranks
 df = df.sort_values(by="Match_Score", ascending=False).reset_index(drop=True)
 best_match = df.iloc[0]
 
-# 5. Top Goal Recommendation Banner
-st.success(f"🏆 **Top Strategic Goal Match:** **{best_match['Neighborhood']}** (Match Score: {best_match['Match_Score']}%)")
-st.info(f"**Community & Rationale:** Profiled as a *'{best_match['Community_Vibe']}'* community. This region offers a baseline price of ${best_match['Home_Price']:,} with an impressive **{best_match['Growth_Trend']}%** growth projection, maximizing asset positioning.")
+# 5. Strategic Recommendation Card
+st.success(f"🏆 **Top Optimization Match:** **{best_match['Neighborhood']}** (Match Score: {best_match['Match_Score']}%)")
+st.info(f"**Holistic Rationale:** Profiled as a *'{best_match['Community_Vibe']}'* hub, this corridor hits your goals beautifully with an entry price of ${best_match['Home_Price']:,}, a {best_match['Tax_Rate']}% property tax rate, an average commute of {best_match['Commute_Mins']} mins, and an elite safety rating.")
 
-# 6. High-Level KPI Summary (Top 3 Performing Asset Markets)
+# 6. Top 3 Strategic Metric Anchors
 st.markdown("---")
-st.subheader("📈 Top 3 Alignment Opportunities")
+st.subheader("📈 Top 3 Balanced Opportunities")
 m1, m2, m3 = st.columns(3)
-m1.metric(df['Neighborhood'].iloc[0], f"${df['Home_Price'].iloc[0]:,}", f"Match: {df['Match_Score'].iloc[0]}%")
-m2.metric(df['Neighborhood'].iloc[1], f"${df['Home_Price'].iloc[1]:,}", f"Match: {df['Match_Score'].iloc[1]}%")
-m3.metric(df['Neighborhood'].iloc[2], f"${df['Home_Price'].iloc[2]:,}", f"Match: {df['Match_Score'].iloc[2]}%")
+m1.metric(df['Neighborhood'].iloc[0], f"${df['Home_Price'].iloc[0]:,}", f"Match Score: {df['Match_Score'].iloc[0]}%")
+m2.metric(df['Neighborhood'].iloc[1], f"${df['Home_Price'].iloc[1]:,}", f"Match Score: {df['Match_Score'].iloc[1]}%")
+m3.metric(df['Neighborhood'].iloc[2], f"${df['Home_Price'].iloc[2]:,}", f"Match Score: {df['Match_Score'].iloc[2]}%")
 
-# 7. Multi-Region Map Widget
-st.subheader("📍 National Workspace Map Matrix")
-view_state = pdk.ViewState(latitude=37.0902, longitude=-95.7129, zoom=3.8, pitch=20)
+# 7. Spatial Deck Map
+st.subheader("📍 Interactive National Portfolio Alignment Matrix")
+view_state = pdk.ViewState(latitude=37.0902, longitude=-95.7129, zoom=3.8, pitch=15)
 layer = pdk.Layer(
     "ScatterplotLayer",
     df,
     get_position="[lon, lat]",
-    get_color="[30, 58, 138, 225]", # Deep corporate blue
-    get_radius=60000,
+    get_color="[15, 118, 110, 215]", # Clean turquoise profile color
+    get_radius=65000,
     pickable=True,
 )
-st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "{Neighborhood}\nProfile: {Community_Vibe}\nMatch Score: {Match_Score}%"}))
+st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip={"text": "{Neighborhood}\nTax Rate: {Tax_Rate}%\nAvg Commute: {Commute_Mins}m\nMatch Score: {Match_Score}%"}))
 
-# 8. Portfolio Comparison Charts
+# 8. Multi-Variable Comparison Visuals
 st.markdown("---")
 c1, c2 = st.columns(2)
 with c1:
-    st.subheader("Strategic Market Alignment Rankings")
+    st.subheader("Comprehensive Score Rankings")
     fig = px.bar(df, x="Match_Score", y="Neighborhood", orientation='h', color="Match_Score",
-                 color_continuous_scale="Viridis", title="Full Index Compatibility (%)")
+                 color_continuous_scale="Teal", title="Match Fit Index Across Target Metros")
     fig.update_layout(yaxis={'categoryorder':'total ascending'})
     st.plotly_chart(fig, use_container_width=True)
 with c2:
-    st.subheader("Asset Value vs. Growth Index")
-    fig2 = px.scatter(df, x="Home_Price", y="Growth_Trend", size="Walkability", text="Neighborhood",
-                      color="School_Rating", title="Value Matrix (Size = Walkability, Color = Schools)")
+    st.subheader("Tax Load vs. Community Safety Matrix")
+    fig2 = px.scatter(df, x="Tax_Rate", y="Crime_Index", size="Home_Price", text="Neighborhood",
+                      color="Commute_Mins", color_continuous_scale="Plasma", 
+                      title="Risk Indexing Grid (Size = Home Price, Color = Commute)")
     st.plotly_chart(fig2, use_container_width=True)
 
-# 9. Multi-Page Executive PDF Report Builder
-def generate_portfolio_pdf(data_frame, top_city, score):
+# 9. Expanded Executive PDF Report Generator
+def generate_advanced_pdf(data_frame, top_city, score):
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30)
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=25, leftMargin=25, topMargin=25, bottomMargin=25)
     styles = getSampleStyleSheet()
     
-    title_style = ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=24, textColor=colors.HexColor('#1E3A8A'), spaceAfter=10)
-    body_style = ParagraphStyle('DocBody', parent=styles['BodyText'], fontSize=10, leading=14, spaceAfter=8)
+    title_style = ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=22, textColor=colors.HexColor('#0F766E'), spaceAfter=8)
+    body_style = ParagraphStyle('DocBody', parent=styles['BodyText'], fontSize=9, leading=13, spaceAfter=6)
     
     story = []
-    story.append(Paragraph("📊 National Real Estate Expansion Brief", title_style))
-    story.append(Paragraph(f"<b>Primary Strategic Recommendation:</b> {top_city} ({score}% Match)", body_style))
-    story.append(Spacer(1, 10))
+    story.append(Paragraph("📊 Comprehensive Multi-Regional Strategic Brief", title_style))
+    story.append(Paragraph(f"<b>Primary Operational Recommendation:</b> {top_city} ({score}% Metric Alignment Fit)", body_style))
+    story.append(Spacer(1, 8))
     
-    # PDF Data Table Setup
-    table_data = [['Target Metro Market', 'Avg Price', 'Schools', 'Walkability', 'Growth %', 'Match Score']]
+    # Detailed Table Setup
+    table_data = [['Market Corridor', 'Avg Price', 'Schools', 'Walk %', 'Growth %', 'Tax Rate %', 'Commute', 'Crime Idx', 'Match']]
     for _, row in data_frame.iterrows():
-        table_data.append([row['Neighborhood'], f"${row['Home_Price']:,}", str(row['School_Rating']), str(row['Walkability']), f"{row['Growth_Trend']}%", f"{row['Match_Score']}%"])
+        table_data.append([
+            row['Neighborhood'], f"${row['Home_Price']:,}", str(row['School_Rating']), 
+            f"{row['Walkability']}%", f"{row['Growth_Trend']}%", f"{row['Tax_Rate']}%", 
+            f"{row['Commute_Mins']}m", str(row['Crime_Index']), f"{row['Match_Score']}%"
+        ])
         
-    t = Table(table_data, colWidths=[160, 75, 55, 65, 65, 75])
+    t = Table(table_data, colWidths=[115, 65, 45, 45, 50, 55, 50, 50, 45])
     t.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E3A8A')),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F766E')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
         ('BOTTOMPADDING', (0,0), (-1,0), 6),
         ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#F9FAFB')),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E5E7EB')),
+        ('FONTSIZE', (0,1), (-1,-1), 8.5),
     ]))
     story.append(t)
     
@@ -138,12 +158,12 @@ def generate_portfolio_pdf(data_frame, top_city, score):
     buffer.seek(0)
     return buffer
 
-# PDF Download Placement
+# PDF UI Hook placement
 st.sidebar.markdown("---")
-portfolio_pdf = generate_portfolio_pdf(df, best_match['Neighborhood'], best_match['Match_Score'])
+advanced_pdf = generate_advanced_pdf(df, best_match['Neighborhood'], best_match['Match_Score'])
 st.sidebar.download_button(
-    label="📥 Export 12-City Portfolio PDF",
-    data=portfolio_pdf,
-    file_name="National_Market_Portfolio.pdf",
+    label="📥 Export Advanced Portfolio Report",
+    data=advanced_pdf,
+    file_name="Comprehensive_Market_Analysis.pdf",
     mime="application/pdf"
 )
