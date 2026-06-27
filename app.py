@@ -79,13 +79,16 @@ df['Match_Score'] = (
     (score_price * b_price) + (score_schools * b_schools) + (score_walk * b_walk) + 
     (score_growth * b_growth) + (score_tax * b_tax) + (score_commute * b_commute) + (score_crime * b_crime)
 ) / total_boost
+df['Match_Score'] = df['Match_Score'].round(1)
+
+# Sort the DataFrame so the top match is ALWAYS row 0, and the charts display correctly
 df = df.sort_values(by="Match_Score", ascending=False).reset_index(drop=True)
 best_city_row = df.iloc[0]
 
 # 5. Strategic Recommendation Card
-# 5. Strategic Recommendation Card 
 st.success(f"🏆 **Top Optimization Match:** **{best_city_row['Neighborhood']}** (Match Score: {best_city_row['Match_Score']}%)") 
 st.info(f"**Holistic Rationale:** Profiled as a *'{best_city_row['Community_Vibe']}'* hub, this corridor hits your goals beautifully with an entry price of ${best_city_row['Home_Price']:,}, a {best_city_row['Tax_Rate']}% property tax rate, an average commute of {best_city_row['Commute_Mins']} mins, and an elite safety rating.")
+
 # 6. Top 3 Strategic Metric Anchors
 st.markdown("---")
 st.subheader("📈 Top 3 Balanced Opportunities")
@@ -166,7 +169,7 @@ def generate_advanced_pdf(data_frame, top_city, score):
 
 # PDF UI Hook placement
 st.sidebar.markdown("---")
-advanced_pdf = generate_advanced_pdf(df, best_match['Neighborhood'], best_match['Match_Score'])
+advanced_pdf = generate_advanced_pdf(df, best_city_row['Neighborhood'], best_city_row['Match_Score'])
 st.sidebar.download_button(
     label="📥 Export Advanced Portfolio Report",
     data=advanced_pdf,
