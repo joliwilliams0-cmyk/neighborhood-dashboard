@@ -79,7 +79,8 @@ df['Match_Score'] = (
     (score_price * b_price) + (score_schools * b_schools) + (score_walk * b_walk) + 
     (score_growth * b_growth) + (score_tax * b_tax) + (score_commute * b_commute) + (score_crime * b_crime)
 ) / total_boost
-df['Match_Score'] = df['Match_Score'].round(1)
+df = df.sort_values(by="Match_Score", ascending=False).reset_index(drop=True)
+best_city_row = df.iloc[0]
 
 # 5. Strategic Recommendation Card
 # 5. Strategic Recommendation Card 
