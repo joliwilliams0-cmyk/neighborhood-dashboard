@@ -15,26 +15,27 @@ st.title("🏡 Metro Investment & First-Time Buyer Portfolio")
 st.markdown("Evaluating multi-regional community metrics, capital goals, and expansion markets.")
 
 # 2. Expanded 12-City Dataset (Prices, Communities, and Visual Anchors)
+# 2. Updated 11-City Dataset (Removed DC-MD-VA)
 @st.cache_data
 def load_portfolio_data():
     return pd.DataFrame({
         'Neighborhood': [
             'Seattle, WA', 'Los Angeles, CA', 'Houston, TX', 'Atlanta, GA', 
             'Phoenix, AZ', 'San Antonio, TX', 'Raleigh-Durham, NC', 
-            'Hampton Roads, VA', 'Oakland, CA', 'Tampa, FL', 'DC-MD-VA', 'Richmond, VA'
+            'Hampton Roads, VA', 'Oakland, CA', 'Tampa, FL', 'Richmond, VA'
         ],
-        'Home_Price': [825000, 785000, 325000, 445000, 415000, 295000, 460000, 310000, 740000, 375000, 680000, 345000],
-        'School_Rating': [8, 7, 6, 8, 7, 6, 9, 7, 6, 7, 8, 7],
-        'Walkability': [78, 89, 72, 85, 62, 55, 68, 50, 82, 65, 80, 70],
-        'Growth_Trend': [4.8, 3.2, 6.4, 7.8, 5.9, 5.1, 8.2, 3.9, 4.1, 7.2, 4.5, 5.6],
+        'Home_Price': [825000, 785000, 325000, 445000, 415000, 295000, 460000, 310000, 740000, 375000, 345000],
+        'School_Rating': [8, 7, 6, 8, 7, 6, 9, 7, 6, 7, 7],
+        'Walkability': [78, 89, 72, 85, 62, 55, 68, 50, 82, 65, 70],
+        'Growth_Trend': [4.8, 3.2, 6.4, 7.8, 5.9, 5.1, 8.2, 3.9, 4.1, 7.2, 5.6],
         'Community_Vibe': [
             'Tech Hub / Coastal', 'Urban Culture / Entertainment', 'Diverse / Industrial Growth', 'Historic Charm / Creative Hub',
             'Desert Urbanism / Expanding Suburbs', 'Historic Culture / Affordable Living', 'Research Triangle / High-Tech Innovation',
             'Maritime History / Military Hub', 'Bay Area Culture / Arts District', 'Coastal Subtropical / Rapid Influx',
-            'Metropolitan / Government & Finance', 'Historic Capital / Emerging Arts'
+            'Historic Capital / Emerging Arts'
         ],
-        'lat': [47.6062, 34.0617, 29.7420, 33.7621, 33.4484, 29.4241, 35.7796, 36.8508, 37.8044, 27.9506, 38.9072, 37.5407],
-        'lon': [-122.3321, -118.2974, -95.3340, -84.3688, -111.9748, -98.4936, -78.6382, -76.2859, -122.2712, -82.4572, -77.0369, -77.4360]
+        'lat': [47.6062, 34.0617, 29.7420, 33.7621, 33.4484, 29.4241, 35.7796, 36.8508, 37.8044, 27.9506, 37.5407],
+        'lon': [-122.3321, -118.2974, -95.3340, -84.3688, -111.9748, -98.4936, -78.6382, -76.2859, -122.2712, -82.4572, -77.4360]
     })
 
 df = load_portfolio_data()
