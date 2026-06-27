@@ -82,9 +82,9 @@ df['Match_Score'] = (
 df['Match_Score'] = df['Match_Score'].round(1)
 
 # 5. Strategic Recommendation Card
-st.success(f"🏆 **Top Optimization Match:** **{best_match['Neighborhood']}** (Match Score: {best_match['Match_Score']}%)")
-st.info(f"**Holistic Rationale:** Profiled as a *'{best_match['Community_Vibe']}'* hub, this corridor hits your goals beautifully with an entry price of ${best_match['Home_Price']:,}, a {best_match['Tax_Rate']}% property tax rate, an average commute of {best_match['Commute_Mins']} mins, and an elite safety rating.")
-
+# 5. Strategic Recommendation Card 
+st.success(f"🏆 **Top Optimization Match:** **{best_city_row['Neighborhood']}** (Match Score: {best_city_row['Match_Score']}%)") 
+st.info(f"**Holistic Rationale:** Profiled as a *'{best_city_row['Community_Vibe']}'* hub, this corridor hits your goals beautifully with an entry price of ${best_city_row['Home_Price']:,}, a {best_city_row['Tax_Rate']}% property tax rate, an average commute of {best_city_row['Commute_Mins']} mins, and an elite safety rating.")
 # 6. Top 3 Strategic Metric Anchors
 st.markdown("---")
 st.subheader("📈 Top 3 Balanced Opportunities")
