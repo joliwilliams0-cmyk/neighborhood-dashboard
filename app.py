@@ -55,7 +55,7 @@ w_tax = st.sidebar.slider("Low Tax Burden", 1, 5, 3)
 w_commute = st.sidebar.slider("Short Commute Focus", 1, 5, 2)
 w_crime = st.sidebar.slider("Neighborhood Safety Focus (Low Crime)", 1, 5, 4)
 
-# 4. Advanced Alignment Math (Normalize Metrics 0-100)
+# 4. Advanced Alignment Math (With Exponential Boosting for Sharp Variation)
 # Low Values are Preferred for Price, Taxes, Commute, and Crime
 score_price = ((df['Home_Price'].max() - df['Home_Price']) / (df['Home_Price'].max() - df['Home_Price'].min() + 1)) * 100
 score_schools = (df['School_Rating'] / 10) * 100
@@ -65,16 +65,21 @@ score_tax = ((df['Tax_Rate'].max() - df['Tax_Rate']) / (df['Tax_Rate'].max() - d
 score_commute = ((df['Commute_Mins'].max() - df['Commute_Mins']) / (df['Commute_Mins'].max() - df['Commute_Mins'].min() + 1)) * 100
 score_crime = ((df['Crime_Index'].max() - df['Crime_Index']) / (df['Crime_Index'].max() - df['Crime_Index'].min() + 1)) * 100
 
-total_weight = w_price + w_schools + w_walk + w_growth + w_tax + w_commute + w_crime
-df['Match_Score'] = (
-    (score_price * w_price) + (score_schools * w_schools) + (score_walk * w_walk) + 
-    (score_growth * w_growth) + (score_tax * w_tax) + (score_commute * w_commute) + (score_crime * w_crime)
-) / total_weight
-df['Match_Score'] = df['Match_Score'].round(1)
+# Apply an exponential power (w ** 3) to create strong mathematical separation when a slider is pushed to 5
+b_price = w_price ** 3
+b_schools = w_schools ** 3
+b_walk = w_walk ** 3
+b_growth = w_growth ** 3
+b_tax = w_tax ** 3
+b_commute = w_commute ** 3
+b_crime = w_crime ** 3
 
-# Re-sort portfolio ranks
-df = df.sort_values(by="Match_Score", ascending=False).reset_index(drop=True)
-best_match = df.iloc[0]
+total_boost = b_price + b_schools + b_walk + b_growth + b_tax + b_commute + b_crime
+df['Match_Score'] = (
+    (score_price * b_price) + (score_schools * b_schools) + (score_walk * b_walk) + 
+    (score_growth * b_growth) + (score_tax * b_tax) + (score_commute * b_commute) + (score_crime * b_crime)
+) / total_boost
+df['Match_Score'] = df['Match_Score'].round(1)
 
 # 5. Strategic Recommendation Card
 st.success(f"🏆 **Top Optimization Match:** **{best_match['Neighborhood']}** (Match Score: {best_match['Match_Score']}%)")
